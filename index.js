@@ -1,6 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const ejs = require("ejs");
+require("dotenv").config();
 const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcrypt");
@@ -23,8 +24,8 @@ app.use(
 );
 
 // Connect to MongoDB
-mongoose.connect("mongodb://localhost:27017/secrets");
-
+mongoose.connect("mongodb+srv://<username>:<password>@cluster0.mongodb.net/secrets?retryWrites=true&w=majority");
+mongoose.connect(process.env.MONGO_URI);
 // Schema and Model
 const userSchema = new mongoose.Schema({
   email: String,
