@@ -1,6 +1,5 @@
 const express = require("express");
 const ejs = require("ejs");
-require("dotenv").config();
 const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcrypt");
