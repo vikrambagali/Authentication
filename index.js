@@ -25,19 +25,10 @@ app.use(
 );
 
 // ===== Connect to MongoDB =====
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => {
-    console.log("✅ Connected to MongoDB");
+mongoose.connect("mongodb+srv://28vikram20:ZGSeeawqsbkd5K2d@cluster0.mongodb.net/secrets?retryWrites=true&w=majority")
+  .then(() => console.log("✅ MongoDB connected"))
+  .catch(err => console.error("❌ MongoDB connection failed:", err));
 
-    // Start server **only after** DB is connected
-    app.listen(5000, () => {
-      console.log("🚀 Server started on port 5000");
-    });
-  })
-  .catch((err) => {
-    console.error("❌ MongoDB connection failed:", err);
-  });
 
 // ===== User Schema and Model =====
 const userSchema = new mongoose.Schema({
