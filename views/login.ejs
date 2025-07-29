@@ -10,13 +10,13 @@
                     <form action="/login" method="post">
                         <div class="form-group">
                             <label for="email">Email</label>
-                            <input type="email" name="username" class="form-control">
+                            <input type="email" name="username" class="form-control"/>
                         </div>
                         <div class="form-group">
                             <label for="password">Password</label>
-                            <input type="password" name="password"id="password"  class="form-control"  required>
+                            <input type="password" name="password"id="password"  class="form-control"  required />
                             <div class="form-check mt-2">
-                                <input type="checkbox" class="form-check-input"  id="showPassword" onclick="togglePassword()">
+                                <input type="checkbox" class="form-check-input"  id="showPassword"/>
                                 <label class="form-check-label" for="showPassword" >Show Password</label>
                             </div>
                         </div>
@@ -29,22 +29,6 @@
     </div>
 </div>
 
-<script>
-//password show icon
-  function togglePassword() {
-    const passwordInput = document.getElementById("password");
-    if (passwordInput.type === "password") {
-      passwordInput.type = "text";
-    } else {
-      passwordInput.type = "password";
-    }
-  }
-
-//password validation
-    function isValidPassword(pw) {
-  return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/.test(pw);
-}
-
-</script>
+<script src="/js/main.js"></script>
 
 <%- include ('partials/footer') %>
