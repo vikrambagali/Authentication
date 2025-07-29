@@ -1,6 +1,5 @@
 const express = require("express");
 const ejs = require("ejs");
-require("dotenv").config();
 const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcrypt");
@@ -9,12 +8,12 @@ const saltRounds = 10;
 
 const app = express();
 
-// View engine and static files
+// View engine & static
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
-// Session setup
+// Session config
 app.use(
   session({
     secret: "thisisasecret",
@@ -24,45 +23,37 @@ app.use(
   })
 );
 
-// ===== Connect to MongoDB =====
-mongoose.connect("mongodb+srv://28vikram20:ZGSeeawqsbkd5K2d@cluster0.mongodb.net/secrets?retryWrites=true&w=majority")
-  .then(() => console.log("✅ MongoDB connected"))
-  .catch(err => console.error("❌ MongoDB connection failed:", err));
+// === Connect to MongoDB (non‑SRV) ===
+mongoose
+  .connect("mongodb://<username>:<password>@ac‑abcd1234‑shard‑00‑00.mongodb.net:27017,ac‑abcd1234‑shard‑00‑01.mongodb.net:27017,ac‑abcd1234‑shard‑00‑02.mongodb.net:27017/secrets?ssl=true&replicaSet=atlas‑abcd1234‑shard‑0&authSource=admin&retryWrites=true&w=majority")
+  .then(() => {
+    console.log("✅ Connected to MongoDB");
 
+    app.listen(5000, () => {
+      console.log("🚀 Server started on port 5000");
+    });
+  })
+  .catch((err) => {
+    console.error("❌ MongoDB connection failed:", err);
+  });
 
-// ===== User Schema and Model =====
-const userSchema = new mongoose.Schema({
-  email: String,
-  password: String
-});
-
+// === User model ===
+const userSchema = new mongoose.Schema({ email: String, password: String });
 const User = mongoose.model("User", userSchema);
 
-// ===== Routes =====
+// === Routes ===
+app.get("/", (req, res) => res.render("home"));
 
-app.get("/", (req, res) => {
-  res.render("home");
-});
-
-app.get("/register", (req, res) => {
-  res.render("register");
-});
-
+app.get("/register", (req, res) => res.render("register"));
 app.post("/register", async (req, res) => {
   const { username, password } = req.body;
-
-  if (!validator.isEmail(username)) {
-    return res.send("❌ Invalid email format.");
-  }
-
+  if (!validator.isEmail(username)) return res.send("❌ Invalid email format.");
   if (!isValidPassword(password)) {
-    return res.send("❌ Password must have uppercase, lowercase, number, and 6+ characters.");
+    return res.send("❌ Password must have upper, lower, number & minimum 6 chars.");
   }
-
   try {
     const hash = await bcrypt.hash(password, saltRounds);
-    const newUser = new User({ email: username, password: hash });
-    await newUser.save();
+    await new User({ email: username, password: hash }).save();
     res.redirect("/login");
   } catch (err) {
     console.error(err);
@@ -70,15 +61,11 @@ app.post("/register", async (req, res) => {
   }
 });
 
-app.get("/login", (req, res) => {
-  res.render("login");
-});
-
+app.get("/login", (req, res) => res.render("login"));
 app.post("/login", async (req, res) => {
   const { username, password } = req.body;
-
   const user = await User.findOne({ email: username });
-  if (user && await bcrypt.compare(password, user.password)) {
+  if (user && (await bcrypt.compare(password, user.password))) {
     req.session.userId = user._id;
     res.redirect("/secrets");
   } else {
@@ -95,23 +82,16 @@ app.get("/secrets", async (req, res) => {
   }
 });
 
-app.get("/submit", (req, res) => {
-  res.render("submitResult"); // or another view if needed
-});
-
+app.get("/submit", (req, res) => res.render("submitResult"));
 app.post("/submit", (req, res) => {
-  // Process submitted data
   res.send("<h1>🎉 Crazy stuff happened! Your secret is safe with us! 🚀</h1>");
 });
 
 app.get("/logout", (req, res) => {
-  req.session.destroy((err) => {
-    res.redirect("/login");
-  });
+  req.session.destroy(() => res.redirect("/login"));
 });
 
-// ===== Password Validator =====
+// === Validation helper ===
 function isValidPassword(password) {
-  const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
-  return regex.test(password);
+  return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/.test(password);
 }
