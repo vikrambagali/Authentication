@@ -80,6 +80,8 @@ JWT_SECRET=yourSecretKey
 
 - Login Page
 - Protected Dashboard
+- <img width="1549" height="910" alt="image" src="https://github.com/user-attachments/assets/a5b6efed-d801-4489-a379-3147d123d850" />
+
 - Show/Hide Password Toggle
 
 ### License
