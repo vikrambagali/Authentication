@@ -1,4 +1,3 @@
-Based on the provided context, here is a breakdown and summary of the authentication app:
 
 ### Secure Authentication App Overview
 This is a simple authentication application built with Express.js, designed to implement secure user registration, login, session handling, and token-based authentication using JWT (JSON Web Tokens).
@@ -77,6 +76,8 @@ JWT_SECRET=yourSecretKey
 
 ### Screenshots
 - Register Page
+- <img width="1635" height="995" alt="image" src="https://github.com/user-attachments/assets/b97a244e-e676-412a-abb9-85595ce2583d" />
+
 - Login Page
 - Protected Dashboard
 - Show/Hide Password Toggle
