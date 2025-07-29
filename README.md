@@ -87,7 +87,7 @@ project/
 bash
 Copy
 Edit
-git clone 
+git clone https://github.com/vikrambagali/Authentication
 cd your-repo
 
 ##Install dependencies
