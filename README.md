@@ -62,7 +62,7 @@ project/
 3. **Run MongoDB**: Ensure MongoDB is running locally or use MongoDB Atlas.
 4. **Start the Server**:
    ```bash
-   node app.js
+   node index.js
    ```
 5. **Access the App**: Visit `http://localhost:5000` in your web browser.
 
