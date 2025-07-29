@@ -1,5 +1,6 @@
 const express = require("express");
 const ejs = require("ejs");
+require("dotenv").config();
 const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcrypt");
@@ -8,12 +9,12 @@ const saltRounds = 10;
 
 const app = express();
 
-// View engine & static
+// View engine and static files
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
-// Session config
+// Session setup
 app.use(
   session({
     secret: "thisisasecret",
@@ -23,37 +24,50 @@ app.use(
   })
 );
 
-// === Connect to MongoDB (non‑SRV) ===
-mongoose
-  .connect("mongodb://<username>:<password>@ac‑abcd1234‑shard‑00‑00.mongodb.net:27017,ac‑abcd1234‑shard‑00‑01.mongodb.net:27017,ac‑abcd1234‑shard‑00‑02.mongodb.net:27017/secrets?ssl=true&replicaSet=atlas‑abcd1234‑shard‑0&authSource=admin&retryWrites=true&w=majority")
-  .then(() => {
-    console.log("✅ Connected to MongoDB");
+// ===== Connect to MongoDB =====
+mongoose.connect(
+  "mongodb://28vikram20:1BVYoFsnDvYz3G3k@" +
+  "ac-yourcluster-shard-00-00.dgblvhy.mongodb.net:27017," +
+  "ac-yourcluster-shard-00-01.dgblvhy.mongodb.net:27017," +
+  "ac-yourcluster-shard-00-02.dgblvhy.mongodb.net:27017/secrets" +
+  "?ssl=true&replicaSet=atlas-xxxx-shard-0&authSource=admin&retryWrites=true&w=majority"
+)
+.then(() => console.log("Connected to MongoDB"))
+.catch(err => console.error("Connection error:", err));
 
-    app.listen(5000, () => {
-      console.log("🚀 Server started on port 5000");
-    });
-  })
-  .catch((err) => {
-    console.error("❌ MongoDB connection failed:", err);
-  });
+// ===== User Schema and Model =====
+const userSchema = new mongoose.Schema({
+  email: String,
+  password: String
+});
 
-// === User model ===
-const userSchema = new mongoose.Schema({ email: String, password: String });
 const User = mongoose.model("User", userSchema);
 
-// === Routes ===
-app.get("/", (req, res) => res.render("home"));
+// ===== Routes =====
 
-app.get("/register", (req, res) => res.render("register"));
+app.get("/", (req, res) => {
+  res.render("home");
+});
+
+app.get("/register", (req, res) => {
+  res.render("register");
+});
+
 app.post("/register", async (req, res) => {
   const { username, password } = req.body;
-  if (!validator.isEmail(username)) return res.send("❌ Invalid email format.");
-  if (!isValidPassword(password)) {
-    return res.send("❌ Password must have upper, lower, number & minimum 6 chars.");
+
+  if (!validator.isEmail(username)) {
+    return res.send("❌ Invalid email format.");
   }
+
+  if (!isValidPassword(password)) {
+    return res.send("❌ Password must have uppercase, lowercase, number, and 6+ characters.");
+  }
+
   try {
     const hash = await bcrypt.hash(password, saltRounds);
-    await new User({ email: username, password: hash }).save();
+    const newUser = new User({ email: username, password: hash });
+    await newUser.save();
     res.redirect("/login");
   } catch (err) {
     console.error(err);
@@ -61,11 +75,15 @@ app.post("/register", async (req, res) => {
   }
 });
 
-app.get("/login", (req, res) => res.render("login"));
+app.get("/login", (req, res) => {
+  res.render("login");
+});
+
 app.post("/login", async (req, res) => {
   const { username, password } = req.body;
+
   const user = await User.findOne({ email: username });
-  if (user && (await bcrypt.compare(password, user.password))) {
+  if (user && await bcrypt.compare(password, user.password)) {
     req.session.userId = user._id;
     res.redirect("/secrets");
   } else {
@@ -82,16 +100,23 @@ app.get("/secrets", async (req, res) => {
   }
 });
 
-app.get("/submit", (req, res) => res.render("submitResult"));
+app.get("/submit", (req, res) => {
+  res.render("submitResult"); // or another view if needed
+});
+
 app.post("/submit", (req, res) => {
+  // Process submitted data
   res.send("<h1>🎉 Crazy stuff happened! Your secret is safe with us! 🚀</h1>");
 });
 
 app.get("/logout", (req, res) => {
-  req.session.destroy(() => res.redirect("/login"));
+  req.session.destroy((err) => {
+    res.redirect("/login");
+  });
 });
 
-// === Validation helper ===
+// ===== Password Validator =====
 function isValidPassword(password) {
-  return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/.test(password);
+  const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
+  return regex.test(password);
 }
