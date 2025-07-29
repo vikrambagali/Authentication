@@ -1,5 +1,4 @@
 const express = require("express");
-const bodyParser = require("body-parser");
 const ejs = require("ejs");
 require("dotenv").config();
 const mongoose = require("mongoose");
@@ -10,10 +9,12 @@ const saltRounds = 10;
 
 const app = express();
 
+// View engine and static files
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
+// Session setup
 app.use(
   session({
     secret: "thisisasecret",
@@ -23,10 +24,22 @@ app.use(
   })
 );
 
-// Connect to MongoDB
-mongoose.connect("mongodb+srv://<username>:<password>@cluster0.mongodb.net/secrets?retryWrites=true&w=majority");
-mongoose.connect(process.env.MONGO_URI);
-// Schema and Model
+// ===== Connect to MongoDB =====
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => {
+    console.log("✅ Connected to MongoDB");
+
+    // Start server **only after** DB is connected
+    app.listen(5000, () => {
+      console.log("🚀 Server started on port 5000");
+    });
+  })
+  .catch((err) => {
+    console.error("❌ MongoDB connection failed:", err);
+  });
+
+// ===== User Schema and Model =====
 const userSchema = new mongoose.Schema({
   email: String,
   password: String
@@ -48,11 +61,11 @@ app.post("/register", async (req, res) => {
   const { username, password } = req.body;
 
   if (!validator.isEmail(username)) {
-    return res.send(" Invalid email format.");
+    return res.send("❌ Invalid email format.");
   }
 
   if (!isValidPassword(password)) {
-    return res.send(" Password must have uppercase, lowercase, number, and 6+ characters.");
+    return res.send("❌ Password must have uppercase, lowercase, number, and 6+ characters.");
   }
 
   try {
@@ -62,7 +75,7 @@ app.post("/register", async (req, res) => {
     res.redirect("/login");
   } catch (err) {
     console.error(err);
-    res.send("Registration failed.");
+    res.send("❌ Registration failed.");
   }
 });
 
@@ -78,7 +91,7 @@ app.post("/login", async (req, res) => {
     req.session.userId = user._id;
     res.redirect("/secrets");
   } else {
-    res.send(" Invalid email or password.");
+    res.send("❌ Invalid email or password.");
   }
 });
 
@@ -92,28 +105,22 @@ app.get("/secrets", async (req, res) => {
 });
 
 app.get("/submit", (req, res) => {
-  res.render("submitResult"); // or "submit" or any EJS view you want to show after submit
+  res.render("submitResult"); // or another view if needed
 });
 
-
 app.post("/submit", (req, res) => {
-  // process data
+  // Process submitted data
   res.send("<h1>🎉 Crazy stuff happened! Your secret is safe with us! 🚀</h1>");
 });
 
 app.get("/logout", (req, res) => {
-  req.session.destroy(err => {
+  req.session.destroy((err) => {
     res.redirect("/login");
   });
 });
 
-// ========== Password Validator ==========
+// ===== Password Validator =====
 function isValidPassword(password) {
   const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
   return regex.test(password);
 }
-
-// ===== Start Server =====
-app.listen(5000, () => {
-  console.log(" Server started on port 5000");
-});
