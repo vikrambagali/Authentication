@@ -1,6 +1,7 @@
 <%- include('partials/header') %>
 
 <div class="container mt-5">
+<<<<<<< HEAD
   <h1>Login</h1>
 
  <% if (error) { %>
@@ -17,6 +18,30 @@
             <div class="col-md-6">
               <label for="email" class="form-label">Email</label>
               <input type="email" name="username" id="email" class="form-control" required />
+=======
+    <h1>Login</h1>
+    <div class="row">
+        <div class="col-sm-8">
+            <div class="card">
+                <div class="card-body">
+                    <!-- Make post request. -->
+                    <form action="/login" method="post">
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" name="username" class="form-control"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" name="password"id="password"  class="form-control"  required />
+                            <div class="form-check mt-2">
+                                <input type="checkbox" class="form-check-input"  id="showPassword"/>
+                                <label class="form-check-label" for="showPassword" >Show Password</label>
+                            </div>
+                        </div>
+                        <button class="btn btn-dark" type="submit">Login</button>
+                    </form>
+                </div>
+>>>>>>> 8a2081a375b2108090312cfd8333ab497508840b
             </div>
 
             <div class="col-md-6">
@@ -43,4 +68,8 @@
 
 <script src="/js/main.js"></script>
 
+<<<<<<< HEAD
 <%- include('partials/footer') %>
+=======
+<%- include ('partials/footer') %>
+>>>>>>> 8a2081a375b2108090312cfd8333ab497508840b
