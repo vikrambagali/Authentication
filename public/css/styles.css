@@ -11,3 +11,6 @@ body{
     color: #fff;
     background-color: #000;
 }
+.alert-danger{
+    display:hidden;
+}
